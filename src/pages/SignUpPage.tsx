@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { Eye, EyeOff, User, UserCheck } from 'lucide-react'
+import { Eye, EyeOff, User, UserCheck, Crown, Users } from 'lucide-react'
 import { useAuth } from '../contexts/AuthContext'
 
 export function SignUpPage() {
@@ -9,7 +9,8 @@ export function SignUpPage() {
     lastName: '',
     email: '',
     password: '',
-    role: 'user' as 'contributor' | 'user'
+    role: 'user' as 'contributor' | 'user',
+    userType: 'public' as 'public' | 'paid'
   })
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -24,7 +25,7 @@ export function SignUpPage() {
     setError('')
 
     try {
-      await signUp(formData.email, formData.password, formData.firstName, formData.lastName, formData.role)
+      await signUp(formData.email, formData.password, formData.firstName, formData.lastName, formData.role, formData.userType)
       navigate('/login', { 
         state: { message: 'Account created successfully! Please log in.' }
       })
@@ -162,6 +163,41 @@ export function SignUpPage() {
               </div>
             </div>
 
+            {formData.role === 'user' && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Choose your plan
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, userType: 'public' })}
+                    className={`p-4 rounded-lg border-2 transition-all ${
+                      formData.userType === 'public'
+                        ? 'border-green-500 bg-green-50 text-green-700'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <Users className="h-6 w-6 mx-auto mb-2" />
+                    <div className="text-sm font-medium">Public User</div>
+                    <div className="text-xs text-gray-500 mt-1">Access to public webinars only</div>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData({ ...formData, userType: 'paid' })}
+                    className={`p-4 rounded-lg border-2 transition-all ${
+                      formData.userType === 'paid'
+                        ? 'border-purple-500 bg-purple-50 text-purple-700'
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                  >
+                    <Crown className="h-6 w-6 mx-auto mb-2" />
+                    <div className="text-sm font-medium">Paid User</div>
+                    <div className="text-xs text-gray-500 mt-1">Access to all webinars</div>
+                  </button>
+                </div>
+              </div>
+            )}
             <button
               type="submit"
               disabled={loading}

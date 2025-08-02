@@ -33,9 +33,20 @@ export function Navbar() {
                 <span className="text-sm text-gray-700">
                   {profile.first_name} {profile.last_name}
                 </span>
-                <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full capitalize">
-                  {profile.role}
-                </span>
+                <div className="flex space-x-2">
+                  <span className="px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full capitalize">
+                    {profile.role}
+                  </span>
+                  {profile.role === 'user' && (
+                    <span className={`px-2 py-1 text-xs font-medium rounded-full capitalize ${
+                      profile.user_type === 'paid' 
+                        ? 'bg-purple-100 text-purple-800' 
+                        : 'bg-green-100 text-green-800'
+                    }`}>
+                      {profile.user_type}
+                    </span>
+                  )}
+                </div>
                 {profile.role === 'contributor' ? (
                   <Link
                     to="/dashboard"

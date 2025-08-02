@@ -60,7 +60,36 @@ export function ExplorePage() {
   }
 
   const canAccessWebinar = (webinar: Webinar) => {
-    return webinar.access_type === 'public' || user
+    if (!user || !profile) {
+      return webinar.access_type === 'public'
+    }
+    
+    // Contributors can access all webinars
+    if (profile.role === 'contributor') {
+      return true
+    }
+    
+    // For users, check access type and user type
+    if (webinar.access_type === 'public') {
+      return true
+    }
+    
+    // Paid-only webinars require paid user type
+    return profile.user_type === 'paid'
+  }
+
+  const shouldShowAsUpcoming = (webinar: Webinar) => {
+    // For contributors, show actual status
+    if (profile?.role === 'contributor') {
+      return isFuture(new Date(webinar.scheduled_date))
+    }
+    
+    // For users, show past webinars as "upcoming" to hide content
+    if (profile?.role === 'user' && isPast(new Date(webinar.scheduled_date))) {
+      return true // Show as upcoming even if it's past
+    }
+    
+    return isFuture(new Date(webinar.scheduled_date))
   }
 
   if (loading) {
@@ -116,7 +145,7 @@ export function ExplorePage() {
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
             {filteredWebinars.map((webinar) => {
-              const isUpcoming = isFuture(new Date(webinar.scheduled_date))
+              const isUpcoming = shouldShowAsUpcoming(webinar)
               const hasAccess = canAccessWebinar(webinar)
               
               return (

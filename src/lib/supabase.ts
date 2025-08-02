@@ -14,6 +14,7 @@ export type UserProfile = {
   first_name: string
   last_name: string
   role: 'contributor' | 'user'
+  user_type: 'public' | 'paid'
   created_at: string
   updated_at: string
 }
