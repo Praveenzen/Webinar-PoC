@@ -11,7 +11,7 @@ export function ExplorePage() {
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [filter, setFilter] = useState<'all' | 'upcoming' | 'past'>('all')
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
 
   useEffect(() => {
     fetchWebinars()
