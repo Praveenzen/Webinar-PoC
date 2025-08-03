@@ -47,7 +47,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchProfile = async (userId: string) => {
     try {
-      setLoading(true)
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
@@ -62,7 +61,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (data) {
         setProfile(data)
       } else {
-        // Profile doesn't exist, this shouldn't happen for properly signed up users
         console.log('No profile found for user, this may indicate a signup issue')
         setProfile(null)
       }

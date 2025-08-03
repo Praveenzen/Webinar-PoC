@@ -20,37 +20,35 @@ function AppRoutes() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading...</p>
+          <p className="text-gray-600">Loading application...</p>
         </div>
       </div>
     )
   }
 
-  // If user exists but no profile, show error state
-  if (user && !profile) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-xl font-semibold text-gray-900 mb-2">Profile Setup Required</h2>
-          <p className="text-gray-600 mb-4">There was an issue setting up your profile. Please try signing up again.</p>
-          <button
-            onClick={() => window.location.href = '/signup'}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Go to Sign Up
-          </button>
-        </div>
-      </div>
-    )
-  }
+
   return (
     <Router>
       <div className="min-h-screen bg-gray-50">
         <Navbar />
         <Routes>
           <Route path="/" element={<HomePage />} />
-          <Route path="/signup" element={!user ? <SignUpPage /> : <Navigate to={profile?.role === 'contributor' ? '/dashboard' : '/explore'} />} />
-          <Route path="/login" element={!user ? <LoginPage /> : <Navigate to={profile?.role === 'contributor' ? '/dashboard' : '/explore'} />} />
+          <Route 
+            path="/signup" 
+            element={
+              !user ? <SignUpPage /> : 
+              profile ? <Navigate to={profile.role === 'contributor' ? '/dashboard' : '/explore'} /> :
+              <Navigate to="/explore" />
+            } 
+          />
+          <Route 
+            path="/login" 
+            element={
+              !user ? <LoginPage /> : 
+              profile ? <Navigate to={profile.role === 'contributor' ? '/dashboard' : '/explore'} /> :
+              <Navigate to="/explore" />
+            } 
+          />
           <Route path="/explore" element={<ExplorePage />} />
           <Route path="/webinar/:id" element={<WebinarDetailPage />} />
           <Route
