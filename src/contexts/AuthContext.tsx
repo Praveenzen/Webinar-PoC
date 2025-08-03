@@ -34,7 +34,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       async (event, session) => {
         setUser(session?.user ?? null)
         if (session?.user) {
-          fetchProfile(session.user.id)
+          await fetchProfile(session.user.id)
         } else {
           setProfile(null)
           setLoading(false)
@@ -47,77 +47,63 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchProfile = async (userId: string) => {
     try {
+      setLoading(true)
       const { data, error } = await supabase
         .from('user_profiles')
         .select('*')
         .eq('id', userId)
         .maybeSingle()
 
-      if (error) {
+      if (error && error.code !== 'PGRST116') {
         console.error('Error fetching profile:', error)
-        // If profile doesn't exist, create a default one
-        if (error.code === 'PGRST116') {
-          await createDefaultProfile(userId)
-          return
-        }
         throw error
       }
       
       if (data) {
         setProfile(data)
       } else {
-        // Profile doesn't exist, create a default one
-        await createDefaultProfile(userId)
+        // Profile doesn't exist, this shouldn't happen for properly signed up users
+        console.log('No profile found for user, this may indicate a signup issue')
+        setProfile(null)
       }
     } catch (error) {
       console.error('Error fetching profile:', error)
+      setProfile(null)
     } finally {
       setLoading(false)
     }
   }
 
-  const createDefaultProfile = async (userId: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('user_profiles')
-        .insert({
-          id: userId,
-          first_name: '',
-          last_name: '',
-          role: 'user',
-          user_type: 'public',
-        })
-        .select()
-        .single()
-
-      if (error) throw error
-      setProfile(data)
-    } catch (error) {
-      console.error('Error creating default profile:', error)
-    }
-  }
-
   const signUp = async (email: string, password: string, firstName: string, lastName: string, role: 'contributor' | 'user', userType: 'public' | 'paid' = 'public') => {
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-    })
+    try {
+      // First, sign up the user
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email,
+        password,
+      })
 
-    if (error) throw error
+      if (authError) throw authError
 
-    if (data.user) {
-      // Create profile
-      const { error: profileError } = await supabase
-        .from('user_profiles')
-        .insert({
-          id: data.user.id,
-          first_name: firstName,
-          last_name: lastName,
-          role,
-          user_type: userType,
-        })
+      if (authData.user) {
+        // Create profile immediately after successful signup
+        const { error: profileError } = await supabase
+          .from('user_profiles')
+          .insert({
+            id: authData.user.id,
+            first_name: firstName,
+            last_name: lastName,
+            role,
+            user_type: userType,
+          })
 
-      if (profileError) throw profileError
+        if (profileError) {
+          console.error('Error creating profile:', profileError)
+          throw new Error('Failed to create user profile')
+        }
+      }
+    } catch (error) {
+      console.error('Signup error:', error)
+      throw error
     }
   }
 
