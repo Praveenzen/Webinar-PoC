@@ -51,14 +51,49 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .from('user_profiles')
         .select('*')
         .eq('id', userId)
+        .maybeSingle()
+
+      if (error) {
+        console.error('Error fetching profile:', error)
+        // If profile doesn't exist, create a default one
+        if (error.code === 'PGRST116') {
+          await createDefaultProfile(userId)
+          return
+        }
+        throw error
+      }
+      
+      if (data) {
+        setProfile(data)
+      } else {
+        // Profile doesn't exist, create a default one
+        await createDefaultProfile(userId)
+      }
+    } catch (error) {
+      console.error('Error fetching profile:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const createDefaultProfile = async (userId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('user_profiles')
+        .insert({
+          id: userId,
+          first_name: '',
+          last_name: '',
+          role: 'user',
+          user_type: 'public',
+        })
+        .select()
         .single()
 
       if (error) throw error
       setProfile(data)
     } catch (error) {
-      console.error('Error fetching profile:', error)
-    } finally {
-      setLoading(false)
+      console.error('Error creating default profile:', error)
     }
   }
 
