@@ -240,7 +240,7 @@ export function SignUpPage() {
           </form>
         </div>
       </div>
-      </div>
+    </div>
     </>
   )
 }
