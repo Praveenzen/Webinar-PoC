@@ -15,6 +15,7 @@ export function SignUpPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [showSuccess, setShowSuccess] = useState(false)
   
   const { signUp } = useAuth()
   const navigate = useNavigate()
@@ -26,9 +27,7 @@ export function SignUpPage() {
 
     try {
       await signUp(formData.email, formData.password, formData.firstName, formData.lastName, formData.role, formData.userType)
-      navigate('/login', { 
-        state: { message: 'Account created successfully! Please log in.' }
-      })
+      setShowSuccess(true)
     } catch (error: any) {
       setError(error.message || 'Failed to create account')
     } finally {
@@ -36,8 +35,41 @@ export function SignUpPage() {
     }
   }
 
+  const handleGoToLogin = () => {
+    navigate('/login', { 
+      state: { message: 'Account created successfully! Please log in to continue.' }
+    })
+  }
+
+  // Success Modal Component
+  const SuccessModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white rounded-lg p-8 max-w-md w-full mx-4">
+        <div className="text-center">
+          <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+            <UserCheck className="h-6 w-6 text-green-600" />
+          </div>
+          <h3 className="text-lg font-medium text-gray-900 mb-2">
+            Account Created Successfully!
+          </h3>
+          <p className="text-sm text-gray-600 mb-6">
+            Your account has been created. Please log in to continue and access your dashboard.
+          </p>
+          <button
+            onClick={handleGoToLogin}
+            className="w-full bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+    <>
+      {showSuccess && <SuccessModal />}
+      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
         <h2 className="mt-6 text-center text-3xl font-bold text-gray-900">
           Create your account
@@ -208,6 +240,7 @@ export function SignUpPage() {
           </form>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   )
 }
