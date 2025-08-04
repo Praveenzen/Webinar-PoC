@@ -55,7 +55,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (error && error.code !== 'PGRST116') {
         console.error('Error fetching profile:', error)
-        throw error
+        // Don't throw error, just log it and continue
       }
       
       if (data) {

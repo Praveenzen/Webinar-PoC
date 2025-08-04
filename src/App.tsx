@@ -36,17 +36,13 @@ function AppRoutes() {
           <Route 
             path="/signup" 
             element={
-              !user ? <SignUpPage /> : 
-              profile ? <Navigate to={profile.role === 'contributor' ? '/dashboard' : '/explore'} /> :
-              <Navigate to="/explore" />
+              !user ? <SignUpPage /> : <Navigate to="/explore" />
             } 
           />
           <Route 
             path="/login" 
             element={
-              !user ? <LoginPage /> : 
-              profile ? <Navigate to={profile.role === 'contributor' ? '/dashboard' : '/explore'} /> :
-              <Navigate to="/explore" />
+              !user ? <LoginPage /> : <Navigate to="/explore" />
             } 
           />
           <Route path="/explore" element={<ExplorePage />} />
